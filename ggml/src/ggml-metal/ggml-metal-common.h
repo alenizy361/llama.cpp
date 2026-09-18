@@ -4,6 +4,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,8 +54,8 @@ bool ggml_metal_op_mul_mat_use_mm   (const struct ggml_tensor * op, bool has_sim
 bool ggml_metal_op_mul_mat_id_use_mm(const struct ggml_tensor * op, bool has_simdgroup_mm);
 
 // FWHT dispatch; used by both supports_op and ggml_metal_op_mul_mat
-bool ggml_metal_fwht_supported_size(int64_t n);
-bool ggml_metal_use_fwht           (const struct ggml_tensor * op);
+bool ggml_metal_fwht_supported_size(int64_t n, size_t max_tg_mem);
+bool ggml_metal_use_fwht           (const struct ggml_tensor * op, size_t max_tg_mem);
 
 #ifdef __cplusplus
 }

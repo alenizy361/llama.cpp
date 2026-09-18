@@ -2303,6 +2303,13 @@ int ggml_metal_op_fwht(ggml_metal_op_t ctx, int idx) {
     const int th_max = ggml_metal_pipeline_max_theads_per_threadgroup(pipeline);
     const int simd_size = 32;
 
+    if (n >= GGML_METAL_FWHT_TG_MIN_N) {
+        GGML_ASSERT(th_max >= GGML_METAL_FWHT_TG_NT);
+        ggml_metal_encoder_dispatch_threadgroups(enc, nrows, 1, 1, GGML_METAL_FWHT_TG_NT, 1, 1);
+
+        return 1;
+    }
+
     int sg_per_tg = 2;
     sg_per_tg = std::min(sg_per_tg, th_max/simd_size);
     sg_per_tg = std::max(sg_per_tg, 1);
@@ -2379,7 +2386,7 @@ int ggml_metal_op_mul_mat(ggml_metal_op_t ctx, int idx) {
     ggml_metal_library_t lib = ctx->lib;
     ggml_metal_encoder_t enc = ctx->enc;
 
-    if (ggml_metal_use_fwht(op)) {
+    if (ggml_metal_use_fwht(op, ggml_metal_device_get_props(ctx->dev)->max_theadgroup_memory_size)) {
         return ggml_metal_op_fwht(ctx, idx);
     }
     const ggml_metal_device_props * props_dev = ggml_metal_device_get_props(ctx->dev);
